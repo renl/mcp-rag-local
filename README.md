@@ -21,7 +21,16 @@ memory_server.remember_similar_texts("What is Singapore?", n_results=3)
 This will return the most relevant stored texts along with a human-readable description of their relevance.
 
 
+
 # Setup Instructions
+
+## 0. Clone this repository
+First, clone this git repository and change into the cloned directory:
+
+```
+git clone <repository-url>
+cd mcp-rag-local
+```
 
 ## 1. Install uv
 Install [uv](https://github.com/astral-sh/uv) (a fast Python package manager):
