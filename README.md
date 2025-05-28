@@ -1,0 +1,1 @@
+`docker exec -it ollama ollama pull all-minilm:l6-v2`
