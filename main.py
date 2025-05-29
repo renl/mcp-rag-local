@@ -3,6 +3,10 @@ import requests
 import chromadb
 import uuid
 from mcp.server.fastmcp import FastMCP
+import os
+
+OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
+CHROMADB_PORT = os.getenv("CHROMADB_PORT", "8321")
 
 mcp = FastMCP(name="Memory server", description="A server for memorizing and retrieving texts based on their meaning.")
 
@@ -14,7 +18,7 @@ def get_embedding(text: str):
     Returns:
         list: The embedding vector as a list of floats, or None if failed.
     """
-    url = "http://localhost:11434/api/embeddings"
+    url = f"http://localhost:{OLLAMA_PORT}/api/embeddings"
     payload = {"model": "all-minilm:l6-v2", "prompt": text}
     try:
         response = requests.post(url, json=payload)
@@ -44,7 +48,7 @@ def memorize_text(text: str, metadata: dict = {"topic": "memory"}) -> str:
         str: A message indicating success or failure of the operation.
     """
     collection_name = "texts_collection"
-    client = chromadb.HttpClient(host="localhost", port=8000)
+    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
     collection = client.get_or_create_collection(collection_name)
     embedding = get_embedding(text)
     if embedding is None:
@@ -73,7 +77,7 @@ def remember_similar_texts(query_text: str, n_results: int = 5) -> str:
         str: A human-readable string with the results and their relevance.
     """
     collection_name = "texts_collection"
-    client = chromadb.HttpClient(host="localhost", port=8000)
+    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
     collection = client.get_or_create_collection(collection_name)
     embedding = get_embedding(query_text)
     if embedding is None:
@@ -98,7 +102,7 @@ def remember_similar_texts(query_text: str, n_results: int = 5) -> str:
             relevance = "Slightly relevant"
         else:
             relevance = "Not very relevant"
-        output_lines.append(f"Result {i}: {text}\nRelevance: {relevance}\n")
+        output_lines.append(f"Result {i}: {text}\nRelevance: {relevance}\nDistance: {distance:.4f}\n")
     return "\n".join(output_lines)
 
 if __name__ == "__main__":

@@ -72,6 +72,10 @@ Add the following to your MCP server configuration:
     "path\\to\\mcp-rag-local",
     "run",
     "main.py"
-  ]
+  ],
+  "env": {
+    "CHROMADB_PORT": "8321",
+    "OLLAMA_PORT": "11434",
+  }
 }
 ```
