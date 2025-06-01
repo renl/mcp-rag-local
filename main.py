@@ -39,6 +39,38 @@ def greet_user():
     return f"Hello! I am {mcp.name}."
 
 @mcp.tool()
+def memorize_multiple_texts(texts: list, metadata: dict = {"topic": "memory"}) -> str:
+    """Memorize multiple texts for later retrieval based on relevance in meaning, not just keywords.
+    
+    Args:
+        texts (list): A list of texts to memorize.
+    Returns:
+        str: A message indicating success or failure of the operation.
+    """
+    collection_name = "texts_collection"
+    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
+    collection = client.get_or_create_collection(collection_name)
+    embeddings = []
+    
+    for text in texts:
+        embedding = get_embedding(text)
+        if embedding is None:
+            return "One or more texts were not stored due to an error with embedding."
+        embeddings.append(embedding)
+    
+    try:
+        doc_ids = [str(uuid.uuid4()) for _ in texts]
+        collection.add(
+            ids=doc_ids,
+            embeddings=embeddings,
+            documents=texts,
+            metadatas=[metadata] * len(texts)
+        )
+        return "All texts stored successfully."
+    except Exception as e:
+        return f"One or more texts were not stored due to an error: {e}"
+
+@mcp.tool()
 def memorize_text(text: str, metadata: dict = {"topic": "memory"}) -> str:
     """Memorize a text for later retrieval based on relevance in meaning, not just keywords. 
     

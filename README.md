@@ -75,7 +75,7 @@ Add the following to your MCP server configuration:
   ],
   "env": {
     "CHROMADB_PORT": "8321",
-    "OLLAMA_PORT": "11434",
+    "OLLAMA_PORT": "11434"
   }
 }
 ```
