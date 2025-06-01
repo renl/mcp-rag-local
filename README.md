@@ -4,23 +4,59 @@ This MCP server provides a simple API for storing and retrieving text passages b
 
 ## Example Usage
 
-### Memorize a Text
-Call the `memorize_text` tool with your text:
 
-```
-memory_server.memorize_text("Singapore is an island country in Southeast Asia.")
-```
+### Memorize a Text
+You can simply ask the LLM to memorize a text for you in natural language:
+
+**User:**
+Memorize this text: "Singapore is an island country in Southeast Asia."
+
+**LLM:**
+Text memorized successfully.
+
+
+### Memorize Multiple Texts
+You can also ask the LLM to memorize several texts at once:
+
+**User:**
+Memorize these texts:
+- Singapore is an island country in Southeast Asia.
+- It is about one degree of latitude north of the equator.
+- It is a major financial and shipping hub.
+
+**LLM:**
+All texts memorized successfully.
+
+This will store all provided texts for later semantic retrieval.
+
+### Example: Conversational Chunking and Memorizing Large Text
+
+If you have a long text, you can ask the LLM to help you split it into short, meaningful chunks and store them. For example:
+
+**User:**
+Please chunk the following long text and memorize all the chunks.
+
+`{large body of text}`
+
+**LLM:**
+Splits the text into short, relevant segments and calls `memorize_multiple_texts` to store them. If the text is too long to store in one go, the LLM will continue chunking and storing until the entire text is memorized.
+
+**User:**
+Are all the text chunks stored?
+
+**LLM:**
+Checks and, if not all are stored, continues until the process is complete.
+
+This conversational approach ensures that even very large texts are fully chunked and memorized, with the LLM handling the process interactively.
 
 ### Retrieve Similar Texts
-Call the `remember_similar_texts` tool with your query:
+To recall information, just ask the LLM a question:
 
-```
-memory_server.remember_similar_texts("What is Singapore?", n_results=3)
-```
+**User:**
+What is Singapore?
 
-This will return the most relevant stored texts along with a human-readable description of their relevance.
-
-
+**LLM:**
+Returns the most relevant stored texts along with a human-readable description of their relevance.
 
 # Setup Instructions
 
@@ -61,7 +97,23 @@ After the containers are running, pull the embedding model for Ollama:
 docker exec -it ollama ollama pull all-minilm:l6-v2
 ```
 
-## 4. MCP Server Config
+
+## 4. Viewing and Managing Memory (ChromaDB Admin GUI)
+
+A web-based GUI for ChromaDB(Memory Server's db) is included for easy inspection and management of stored memory.
+
+- The admin UI is available at: [http://localhost:8322](http://localhost:8322)
+- You can use this interface to browse, search, and manage the vector database contents.
+
+### How to Access
+
+1. Make sure you have started all services with:
+   ```
+   docker-compose up
+   ```
+2. Open your browser and go to [http://localhost:8322](http://localhost:8322) to access the ChromaDB Admin UI.
+
+## 5. MCP Server Config
 Add the following to your MCP server configuration:
 
 ```json
