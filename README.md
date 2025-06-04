@@ -29,6 +29,26 @@ All texts memorized successfully.
 
 This will store all provided texts for later semantic retrieval.
 
+### Memorize a PDF File
+
+You can also ask the LLM to memorize the contents of a PDF file via `memorize_pdf_file`. The MCP tool will read up to 20 pages at a time from the PDF, return the extracted text, and have the LLM chunk it into meaningful segments. The LLM then uses the `memorize_multiple_texts` tool to store these chunks.
+
+This process is repeated: the MCP tool continues to read the next 20 pages, the LLM chunks and memorizes them, and so on, until the entire PDF is processed and memorized.
+
+**User:**
+Memorize this PDF file: `C:\path\to\document.pdf`
+
+**LLM:**
+Reads the first 20 pages, chunks the text, stores the chunks, and continues with the next 20 pages until the whole document is memorized.
+
+You can also specify a starting page if you want to begin from a specific page:
+
+**MCP to LLM:**
+Memorize this PDF file starting from page 40: `C:\path\to\document.pdf`
+
+**LLM:**
+Reads pages 40–59, chunks and stores the text, then continues with the next set of pages until the end of the document.
+
 ### Example: Conversational Chunking and Memorizing Large Text
 
 If you have a long text, you can ask the LLM to help you split it into short, meaningful chunks and store them. For example:
