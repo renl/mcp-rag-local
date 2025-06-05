@@ -28,12 +28,17 @@ def get_embedding(text: str):
         return data.get("embedding")
     except Exception as e:
         print(f"Error getting embedding: {e}")
-        return None
+        raise ValueError(
+            "Failed to get embedding from Ollama API. Ensure the Ollama server is running and the "
+            "model is available. Inform the user to ensure docker-compose up was ran and the Ollama "
+            "container is running. Also inform the user to ensure the embedded model was pulled."
+        )
+
 
 @mcp.tool()
 async def memorize_pdf_file(ctx: Context, file_path: str, page: int = 0, metadata: dict = {"topic": "memory"}) -> str:
-    """Chunk the contents of a PDF file into meaningful segments and store them in memory for later retrieval based on relevance 
-    in meaning, not just keywords.
+    """Chunk the contents of a PDF file into meaningful segments and store them in memory for 
+    later retrieval based on relevance in meaning, not just keywords.
 
     Args:
         ctx (Context): The context of the request.
@@ -66,7 +71,7 @@ async def memorize_pdf_file(ctx: Context, file_path: str, page: int = 0, metadat
         await ctx.error(f"Error reading PDF file: {e}")
         return "Failed to read PDF file. Please ensure it is a valid PDF file and the arguments are correct and using the correct types."
     message = (
-        f"Chunk the following text between START_TEXT and END_TEXT meaningfully and memorize the chunks using memorize_multiple_texts:\n\n"
+        f"Chunk the following text between START_TEXT and END_TEXT meaningfully and memorize them using memorize_multiple_texts:\n\n"
         f"START_TEXT\n{text_content_20_pages}\nEND_TEXT\n\n"
         "Ensure all chunks are memorized. To be clear, memorize_pdf_file does not invoke memorize_multiple_texts directly,"
         "but rather prepares the text for it, so you need to call memorize_multiple_texts with the prepared chunks.\n\n"
@@ -96,8 +101,12 @@ def memorize_multiple_texts(texts: list, metadata: dict = {"topic": "memory"}) -
         str: A message indicating success or failure of the operation.
     """
     collection_name = "texts_collection"
-    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-    collection = client.get_or_create_collection(collection_name)
+    try:
+        # Ensure the ChromaDB client is connected
+        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
+        collection = client.get_or_create_collection(collection_name)
+    except Exception as db_exc:
+        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
     embeddings = []
     
     for text in texts:
@@ -129,8 +138,11 @@ def memorize_text(text: str, metadata: dict = {"topic": "memory"}) -> str:
         str: A message indicating success or failure of the operation.
     """
     collection_name = "texts_collection"
-    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-    collection = client.get_or_create_collection(collection_name)
+    try:
+        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
+        collection = client.get_or_create_collection(collection_name)
+    except Exception as db_exc:
+        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
     embedding = get_embedding(text)
     if embedding is None:
         return "Text was not stored due to an error with embedding."
@@ -157,10 +169,22 @@ def remember_similar_texts(query_text: str, n_results: int = 5) -> str:
     Returns:
         str: A human-readable string with the results and their relevance.
     """
+    if n_results <= 0:
+        return "Number of results must be greater than 0."
+    if not query_text:
+        return "Query text is empty. Please provide a valid query."
+
     collection_name = "texts_collection"
-    client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-    collection = client.get_or_create_collection(collection_name)
-    embedding = get_embedding(query_text)
+    try:
+        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
+        collection = client.get_or_create_collection(collection_name)
+    except Exception as db_exc:
+        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
+    
+    try:
+        embedding = get_embedding(query_text)
+    except ValueError as e:
+        return str(e)
     if embedding is None:
         return "Could not process the query due to an error."
     results = collection.query(
