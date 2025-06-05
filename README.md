@@ -117,23 +117,7 @@ After the containers are running, pull the embedding model for Ollama:
 docker exec -it ollama ollama pull all-minilm:l6-v2
 ```
 
-
-## 4. Viewing and Managing Memory (ChromaDB Admin GUI)
-
-A web-based GUI for ChromaDB(Memory Server's db) is included for easy inspection and management of stored memory.
-
-- The admin UI is available at: [http://localhost:8322](http://localhost:8322)
-- You can use this interface to browse, search, and manage the vector database contents.
-
-### How to Access
-
-1. Make sure you have started all services with:
-   ```
-   docker-compose up
-   ```
-2. Open your browser and go to [http://localhost:8322](http://localhost:8322) to access the ChromaDB Admin UI.
-
-## 5. MCP Server Config
+## 4. MCP Server Config
 Add the following to your MCP server configuration:
 
 ```json
@@ -151,3 +135,10 @@ Add the following to your MCP server configuration:
   }
 }
 ```
+
+## 5. Viewing and Managing Memory (ChromaDB Admin GUI)
+
+A web-based GUI for ChromaDB(Memory Server's db) is included for easy inspection and management of stored memory.
+
+- The admin UI is available at: [http://localhost:8322](http://localhost:8322)
+- You can use this interface to browse, search, and manage the vector database contents.

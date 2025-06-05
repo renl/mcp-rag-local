@@ -153,7 +153,7 @@ def remember_similar_texts(query_text: str, n_results: int = 5) -> str:
 
     Args:
         query_text (str): The text to find similar meanings for.
-        n_results (int): The number of results to return.
+        n_results (int): The number of results to return. This is recommended to be more than 10.
     Returns:
         str: A human-readable string with the results and their relevance.
     """
